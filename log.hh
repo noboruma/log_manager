@@ -1,9 +1,6 @@
-#ifndef LOG_HH
-#define LOG_HH
+#ifndef GLOBAL_LOG_HH
+#define GLOBAL_LOG_HH
 
-//#define LOG_VERBOSE_LEVEL N
-//#define LOG_DEBUG_LEVEL 1
-//#define LOG_INFO_LEVEL 2
 #include <iostream>
 #include <chrono>  // chrono::system_clock
 #include <ctime>   // localtime
@@ -15,8 +12,10 @@
 #include <list>
 #include <fstream>
 
-namespace global {
+#define LOG(type, msg) global::log::trace<global::log::level::type>(__FUNCTION__, msg);
 
+namespace global 
+{
   namespace log
   {
     enum class level
@@ -100,7 +99,6 @@ namespace global {
         delete *it;
        logs.clear();
     }
-
 
     template<log::level l>
     inline void trace(const std::string &who, const std::string &msg)
