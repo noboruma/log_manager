@@ -12,11 +12,23 @@
 #include <list>
 #include <fstream>
 
-#define LOG(type, msg) global::log::trace<global::log::level::type>(__FUNCTION__, msg);
+#define __LOG_ERR(who, msg) global::log::trace<global::log::level::ERR>(who, msg)
+#define __LOG_VRB(who, msg) global::log::trace<global::log::level::VRB>(who, msg)
+#define __LOG_NFO(who, msg) global::log::trace<global::log::level::NFO>(who, msg)
+#ifdef NDEBUG
+  #define __LOG_DBG(who, msg)
+#else
+  #define __LOG_DBG(who, msg) global::log::trace<global::log::level::DBG>(who, msg)
+#endif
+#define __LOG_WRN(who, msg) global::log::trace<global::log::level::WRN>(who, msg)
+
+//API
+#define TRACE(type, msg) __LOG_##type(__FUNCTION__, msg)
+#define LOG(type, who, msg) __LOG_##type(who, msg)
 
 namespace global 
 {
-  namespace log
+  struct log
   {
     enum class level
     {
@@ -27,33 +39,7 @@ namespace global
       VRB
     };
 
-    static std::list<std::ofstream*> logs;
-    static bool verbose = false;
-
-    std::ostream& operator<<(std::ostream& o, log::level l)
-    {
-      switch(l)
-      {
-        case level::DBG:
-          o<<" (DBG) ";
-          break;
-        case level::ERR:
-          o<<" (ERR) ";
-          break;
-        case level::WRN:
-          o<<" (WRN) ";
-          break;
-        case level::NFO:
-          o<<" (NFO) ";
-          break;
-        case level::VRB:
-          o<<" (VRB) ";
-          break;
-      }
-      return o;
-    }
-
-    std::string get_now()
+    static std::string get_now()
     {
       auto now = std::chrono::system_clock::now();
       auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -72,12 +58,12 @@ namespace global
       return ss.str();
     }
 
-    void init(bool v = false)
+    static void init(bool v = false)
     { 
       verbose = v;
     }
 
-    std::list<std::ofstream*>::iterator attach_log(const std::string &s)
+    static std::list<std::ofstream*>::iterator attach_log(const std::string &s)
     {
       logs.push_back(new std::ofstream(s));
       auto last_it = logs.end();
@@ -85,13 +71,13 @@ namespace global
       return last_it;
     }
 
-    void detach_log(std::list<std::ofstream*>::iterator it)
+    static void detach_log(std::list<std::ofstream*>::iterator it)
     {
       delete *it;
       logs.erase(it);
     }
 
-    void clean()
+    static void clean()
     {
       for(std::list<std::ofstream*>::iterator it = logs.begin();
           it != logs.end();
@@ -101,48 +87,20 @@ namespace global
     }
 
     template<log::level l>
-    inline void trace(const std::string &who, const std::string &msg)
-    {
+    static inline void trace(const std::string &who, const std::string &msg);
 
-      std::stringstream ss;
-      ss <<"["<<who<<"] "<<get_now()<< l <<msg;
-      std::cout << ss.str() << std::endl;
-      for(auto& log : logs)
-        (*log)<< ss.str() <<std::endl;
-    }
 
-    template<>
-    inline void trace<level::ERR>(const std::string &who, const std::string &msg)
-    {
-      std::stringstream ss;
-      ss <<"["<<who<<"] "<<get_now()<< level::ERR <<msg;
-      std::cerr<< ss <<std::endl;;
-      for(auto& log : logs)
-        (*log)<< ss <<std::endl;;
-    }
+    private:
+      static std::list<std::ofstream*> logs;
+      static bool verbose;
 
-    template<>
-    inline void trace<level::VRB>(const std::string &who, const std::string &msg)
-    {
-      if(!verbose)
-        return;
+  };//! log
 
-      std::stringstream ss;
-      ss << "["<<who<<"] "<<get_now()<< level::VRB <<msg;
-      std::cout << ss.str() << std::endl;
-      for(auto& log : logs)
-        (*log)<< ss.str() << std::endl;
-    }
-    
-#ifdef NDEBUG
-    template<>
-    inline void trace<log::level::DBG>(const std::string &who,
-                                       const std::string &msg)
-    {}
-#endif
+  std::ostream& operator<<(std::ostream& o, log::level l);
 
-  }//! log
 } //!global
+
+#include "log.hxx"
 
 #endif
 
