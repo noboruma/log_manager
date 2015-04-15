@@ -53,7 +53,7 @@ namespace global
                     "%Y-%m-%d %H:%M:%S",
                     std::localtime(&in_time_t)); 
 
-      ss<<format_date<<":"<<millis;
+      ss<<format_date<<":"<<std::setfill('0')<<std::setw(3)<<millis;
 
       return ss.str();
     }

@@ -1,4 +1,4 @@
-#include "log.hh"
+#include "../log.hh"
 
 int main()
 {
