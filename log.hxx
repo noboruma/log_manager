@@ -24,9 +24,6 @@ namespace global
     return o;
   }
 
-  bool log::verbose = false;
-  std::list<std::ofstream*> log::logs;
-
   template<log::level l>
   inline void log::trace(const std::string &who, const std::string &msg)
   {
@@ -61,6 +58,16 @@ namespace global
     std::cout << ss.str() << std::endl;
     for(auto& log : logs)
       (*log)<< ss.str() << std::endl;
+  }
+
+  template<log::level l>
+  inline void log::thread_safe_trace(const std::string &who, const std::string &msg)
+  {
+    static std::mutex mut;
+    {
+      std::lock_guard<std::mutex> lock(mut);
+      log::trace<l>(who,msg);
+    }
   }
 
 } //!global

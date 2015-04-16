@@ -11,6 +11,7 @@
 #include <fstream>
 #include <list>
 #include <fstream>
+#include <mutex>
 
 #define __LOG_ERR(who, msg) global::log::trace<global::log::level::ERR>(who, msg)
 #define __LOG_VRB(who, msg) global::log::trace<global::log::level::VRB>(who, msg)
@@ -25,6 +26,25 @@
 //API
 #define TRACE(type, msg) __LOG_##type(__FUNCTION__, msg)
 #define LOG(type, who, msg) __LOG_##type(who, msg)
+
+
+#define __SYNC_LOG_ERR(who, msg) global::log::thread_safe_trace<global::log::level::ERR>(who, msg)
+#define __SYNC_LOG_VRB(who, msg) global::log::thread_safe_trace<global::log::level::VRB>(who, msg)
+#define __SYNC_LOG_NFO(who, msg) global::log::thread_safe_trace<global::log::level::NFO>(who, msg)
+#ifdef NDEBUG
+  #define __SYNC_LOG_DBG(who, msg)
+#else
+  #define __SYNC_LOG_DBG(who, msg) global::log::thread_safe_trace<global::log::level::DBG>(who, msg)
+#endif
+#define __SYNC_LOG_WRN(who, msg) global::log::thread_safe_trace<global::log::level::WRN>(who, msg)
+
+//API
+#define SYNC_TRACE(type, msg) __SYNC_LOG_##type(__FUNCTION__, msg)
+#define SYNC_LOG(type, who, msg) __SYNC_LOG_##type(who, msg)
+
+#define INIT_LOG() \
+  bool global::log::verbose = false;\
+  std::list<std::ofstream*> global::log::logs
 
 namespace global 
 {
@@ -58,11 +78,6 @@ namespace global
       return ss.str();
     }
 
-    static void init(bool v = false)
-    { 
-      verbose = v;
-    }
-
     static std::list<std::ofstream*>::iterator attach_log(const std::string &s)
     {
       logs.push_back(new std::ofstream(s));
@@ -87,16 +102,19 @@ namespace global
     }
 
     template<log::level l>
+    static inline void thread_safe_trace(const std::string &who, const std::string &msg);
+
+    template<log::level l>
     static inline void trace(const std::string &who, const std::string &msg);
 
 
+      static bool verbose;
     private:
       static std::list<std::ofstream*> logs;
-      static bool verbose;
 
   };//! log
 
-  std::ostream& operator<<(std::ostream& o, log::level l);
+  static std::ostream& operator<<(std::ostream& o, log::level l);
 
 } //!global
 
