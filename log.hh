@@ -13,34 +13,23 @@
 #include <fstream>
 #include <mutex>
 
-#define __LOG_ERR(who, msg) global::log::trace<global::log::level::ERR>(who, msg)
-#define __LOG_VRB(who, msg) global::log::trace<global::log::level::VRB>(who, msg)
-#define __LOG_NFO(who, msg) global::log::trace<global::log::level::NFO>(who, msg)
+// Do not use directly those defines
+#define __LOG_ERR(who, msg, func) global::log::func<global::log::level::ERR>(who, msg)
+#define __LOG_VRB(who, msg, func) global::log::func<global::log::level::VRB>(who, msg)
+#define __LOG_NFO(who, msg, func) global::log::func<global::log::level::NFO>(who, msg)
 #ifdef NDEBUG
-  #define __LOG_DBG(who, msg)
+  #define __LOG_DBG(who, msg, func)
 #else
-  #define __LOG_DBG(who, msg) global::log::trace<global::log::level::DBG>(who, msg)
+  #define __LOG_DBG(who, msg, func) global::log::func<global::log::level::DBG>(who, msg)
 #endif
-#define __LOG_WRN(who, msg) global::log::trace<global::log::level::WRN>(who, msg)
+#define __LOG_WRN(who, msg, func) global::log::func<global::log::level::WRN>(who, msg)
 
 //API
-#define TRACE(type, msg) __LOG_##type(__FUNCTION__, msg)
-#define LOG(type, who, msg) __LOG_##type(who, msg)
+#define TRACE(type, msg) __LOG_##type(__FUNCTION__, msg, trace)
+#define LOG(type, who, msg) __LOG_##type(who, msg, trace)
 
-
-#define __SYNC_LOG_ERR(who, msg) global::log::thread_safe_trace<global::log::level::ERR>(who, msg)
-#define __SYNC_LOG_VRB(who, msg) global::log::thread_safe_trace<global::log::level::VRB>(who, msg)
-#define __SYNC_LOG_NFO(who, msg) global::log::thread_safe_trace<global::log::level::NFO>(who, msg)
-#ifdef NDEBUG
-  #define __SYNC_LOG_DBG(who, msg)
-#else
-  #define __SYNC_LOG_DBG(who, msg) global::log::thread_safe_trace<global::log::level::DBG>(who, msg)
-#endif
-#define __SYNC_LOG_WRN(who, msg) global::log::thread_safe_trace<global::log::level::WRN>(who, msg)
-
-//API
-#define SYNC_TRACE(type, msg) __SYNC_LOG_##type(__FUNCTION__, msg)
-#define SYNC_LOG(type, who, msg) __SYNC_LOG_##type(who, msg)
+#define SYNC_TRACE(type, msg) __SYNC_LOG_##type(__FUNCTION__, msg, thread_safe_trace)
+#define SYNC_LOG(type, who, msg) __SYNC_LOG_##type(who, msg, thread_safe_trace)
 
 #define INIT_LOG() \
   bool global::log::verbose = false;\
