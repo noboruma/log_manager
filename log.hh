@@ -31,10 +31,6 @@
 #define SYNC_TRACE(type, msg) __SYNC_LOG_##type(__FUNCTION__, msg, thread_safe_trace)
 #define SYNC_LOG(type, who, msg) __SYNC_LOG_##type(who, msg, thread_safe_trace)
 
-#define INIT_LOG() \
-  bool global::log::verbose = false;\
-  std::list<std::ofstream*> global::log::logs
-
 namespace global 
 {
   struct log
@@ -69,8 +65,8 @@ namespace global
 
     static std::list<std::ofstream*>::iterator attach_log(const std::string &s)
     {
-      logs.push_back(new std::ofstream(s));
-      auto last_it = logs.end();
+      get_logs().push_back(new std::ofstream(s));
+      auto last_it = get_logs().end();
       --last_it;
       return last_it;
     }
@@ -78,16 +74,16 @@ namespace global
     static void detach_log(std::list<std::ofstream*>::iterator it)
     {
       delete *it;
-      logs.erase(it);
+      get_logs().erase(it);
     }
 
     static void clean()
     {
-      for(std::list<std::ofstream*>::iterator it = logs.begin();
-          it != logs.end();
+      for(std::list<std::ofstream*>::iterator it = get_logs().begin();
+          it != get_logs().end();
           ++it)
         delete *it;
-       logs.clear();
+       get_logs().clear();
     }
 
     template<log::level l>
@@ -96,11 +92,20 @@ namespace global
     template<log::level l>
     static inline void trace(const std::string &who, const std::string &msg);
 
+    inline static 
+    bool& get_verbosity()
+    {
+      static bool v = false;
+      return v;
+    }
 
-      static bool verbose;
     private:
-      static std::list<std::ofstream*> logs;
-
+      static inline 
+      std::list<std::ofstream*>& get_logs()
+      {
+        static std::list<std::ofstream*> logs;
+        return logs;
+      }
   };//! log
 
   static std::ostream& operator<<(std::ostream& o, log::level l);

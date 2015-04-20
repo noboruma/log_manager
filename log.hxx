@@ -31,7 +31,7 @@ namespace global
     std::stringstream ss;
     ss <<"["<<who<<"] "<<get_now()<< l <<msg;
     std::cout << ss.str() << std::endl;
-    for(auto& log : logs)
+    for(auto& log : get_logs())
       (*log)<< ss.str() <<std::endl;
   }
 
@@ -42,7 +42,7 @@ namespace global
     std::stringstream ss;
     ss <<"["<<who<<"] "<<log::get_now()<< log::level::ERR <<msg;
     std::cerr<< ss <<std::endl;;
-    for(auto& log : logs)
+    for(auto& log : get_logs())
       (*log)<< ss <<std::endl;;
   }
 
@@ -50,13 +50,13 @@ namespace global
   inline void log::trace<log::level::VRB>(const std::string &who,
                                           const std::string &msg)
   {
-    if(!verbose)
+    if(!get_verbosity())
       return;
 
     std::stringstream ss;
     ss << "["<<who<<"] "<<log::get_now()<< log::level::VRB <<msg;
     std::cout << ss.str() << std::endl;
-    for(auto& log : logs)
+    for(auto& log : get_logs())
       (*log)<< ss.str() << std::endl;
   }
 

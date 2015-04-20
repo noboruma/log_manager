@@ -2,7 +2,7 @@
 
 int main()
 {
-  global::log::init(true);
+  global::log::get_verbosity() = true;
 
   auto it = global::log::attach_log("toto.log");
 
