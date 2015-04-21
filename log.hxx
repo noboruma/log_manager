@@ -27,12 +27,12 @@ namespace global
   template<log::level l>
   inline void log::trace(const std::string &who, const std::string &msg)
   {
-
     std::stringstream ss;
     ss <<"["<<who<<"] "<<get_now()<< l <<msg;
-    std::cout << ss.str() << std::endl;
+    const std::string& s = ss.str();
+    std::cout << s << std::endl;
     for(auto& log : get_logs())
-      (*log)<< ss.str() <<std::endl;
+      (*log)<< s <<std::endl;
   }
 
   template<>
@@ -41,9 +41,10 @@ namespace global
   {
     std::stringstream ss;
     ss <<"["<<who<<"] "<<log::get_now()<< log::level::ERR <<msg;
-    std::cerr<< ss <<std::endl;;
+    const std::string& s = ss.str();
+    std::cerr << s << std::endl;
     for(auto& log : get_logs())
-      (*log)<< ss <<std::endl;;
+      (*log)<< s <<std::endl;
   }
 
   template<>
@@ -55,19 +56,18 @@ namespace global
 
     std::stringstream ss;
     ss << "["<<who<<"] "<<log::get_now()<< log::level::VRB <<msg;
-    std::cout << ss.str() << std::endl;
+    const std::string& s = ss.str();
+    std::cout << s << std::endl;
     for(auto& log : get_logs())
-      (*log)<< ss.str() << std::endl;
+      (*log)<< s << std::endl;
   }
 
   template<log::level l>
   inline void log::thread_safe_trace(const std::string &who, const std::string &msg)
   {
     static std::mutex mut;
-    {
-      std::lock_guard<std::mutex> lock(mut);
-      log::trace<l>(who,msg);
-    }
+    std::lock_guard<std::mutex> lock(mut);
+    log::trace<l>(who,msg);
   }
 
 } //!global

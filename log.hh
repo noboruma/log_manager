@@ -46,10 +46,10 @@ namespace global
 
     static std::string get_now()
     {
-      auto now = std::chrono::system_clock::now();
-      auto in_time_t = std::chrono::system_clock::to_time_t(now);
-      auto duration = now.time_since_epoch();
-      auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000;
+      const auto now = std::chrono::system_clock::now();
+      const auto in_time_t = std::chrono::system_clock::to_time_t(now);
+      const auto duration = now.time_since_epoch();
+      const auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000;
 
       std::stringstream ss;
       char format_date [100];
@@ -71,7 +71,7 @@ namespace global
       return last_it;
     }
 
-    static void detach_log(std::list<std::ofstream*>::iterator it)
+    static void detach_log(std::list<std::ofstream*>::iterator& it)
     {
       delete *it;
       get_logs().erase(it);
@@ -92,16 +92,18 @@ namespace global
     template<log::level l>
     static inline void trace(const std::string &who, const std::string &msg);
 
-    inline static 
-    bool& get_verbosity()
+    __attribute__((always_inline)) 
+    static bool& 
+    get_verbosity()
     {
       static bool v = false;
       return v;
     }
 
     private:
-      static inline 
-      std::list<std::ofstream*>& get_logs()
+      __attribute__((always_inline)) 
+      static std::list<std::ofstream*>&
+      get_logs()
       {
         static std::list<std::ofstream*> logs;
         return logs;
