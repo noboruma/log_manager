@@ -1,8 +1,29 @@
 namespace global 
 {
 
+  template<bool use_color>
   std::ostream& operator<<(std::ostream& o, log::level l)
   {
+    if(use_color)
+    switch(l)
+    {
+      case log::level::DBG:
+        o<<log::color::FG_YELLOW+" (DBG) "+log::color::FG_DEFAULT;
+        break;
+      case log::level::ERR:
+        o<<log::color::FG_RED+" (ERR) "+log::color::FG_DEFAULT;
+        break;
+      case log::level::WRN:
+        o<<log::color::FG_CYAN+" (ERR) "+log::color::FG_DEFAULT;
+        break;
+      case log::level::NFO:
+        o<<log::color::FG_BLUE+" (NFO) "+log::color::FG_DEFAULT;
+        break;
+      case log::level::VRB:
+        o<<log::color::FG_GREEN+" (VRB) "+log::color::FG_DEFAULT;
+        break;
+    }
+    else
     switch(l)
     {
       case log::level::DBG:

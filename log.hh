@@ -35,6 +35,20 @@ namespace global
 {
   struct log
   {
+    enum class color : unsigned
+    {
+      FG_RED    =  31,
+      FG_GREEN  =  32,
+      FG_YELLOW =  33,
+      FG_BLUE   =  34,
+      FG_CYAN   =  36,
+      FG_DEFAULT=  39,
+      BG_RED    =  41,
+      BG_GREEN  =  42,
+      BG_BLUE   =  44,
+      BG_DEFAULT=  49
+    };
+
     enum class level
     {
       DBG,
@@ -110,7 +124,26 @@ namespace global
       }
   };//! log
 
+  template<bool use_color=true>
   static std::ostream& operator<<(std::ostream& o, log::level l);
+
+  template<bool use_color=true>
+  static std::string operator+(std::string &&s, const log::color& c)
+  {
+    if(c != log::color::FG_DEFAULT)//TODO: improve
+      return s+"\033[1;"+std::to_string((unsigned)c)+"m";
+    else
+      return s+"\033[0;"+std::to_string((unsigned)c)+"m";
+  }
+
+  template<bool use_color=true>
+  static std::string operator+(const log::color& c, std::string &&s)
+  {
+    if(c != log::color::FG_DEFAULT)//TODO: improve
+      return "\033[1;"+std::to_string((unsigned)c)+"m"+s;
+    else
+      return "\033[0;"+std::to_string((unsigned)c)+"m"+s;
+  }
 
 } //!global
 

@@ -8,6 +8,12 @@ int main()
 
   //global::log::trace<global::log::level::DBG>("main", "start");
   TRACE(DBG, "start");
+  TRACE(NFO, "1");
+  TRACE(NFO, "2");
+  TRACE(NFO, "3");
+  TRACE(NFO, "4");
+  TRACE(ERR, "5");
+  TRACE(WRN, "6");
   TRACE(VRB, "end");
 
   global::log::detach_log(it);
